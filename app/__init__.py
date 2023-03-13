@@ -9,4 +9,6 @@ app = Flask(__name__)
 # migrate = Migrate(app, db)
 
 # from app import routes, models
-from app import routes
+from app import routes, utils
+
+utils.load_env()
