@@ -13,6 +13,7 @@
 #     id = db.Column(db.Integer, primary_key=True)
 #     code_in = db.Column(db.String(2000),nullable=False)
     # code_out
+    # prompt_system_used
     # tokens_prompt
     # tokens_response
     # tokens_total

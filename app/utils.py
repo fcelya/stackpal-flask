@@ -53,6 +53,19 @@ def openai_request_code(code,language="Python"):
 
     return response
 
+def openai_request_code_test(code,language="Python"):
+    MODEL = "gpt-3.5-turbo"
+    response = {}
+    response["id_answer"] = 'chatcmpl-6tas4m95wEC26nc1hjUQOzDdEOkbT'
+    response["answer_code"],response["answer_explanation"] = "print('fuck yo mama')","fuck her cos she a hoe"
+    response["model"] = MODEL
+    response["tokens_prompt"] = 69
+    response["tokens_response"] = 420
+    response["tokens_total"] = 489
+
+    return response
+
+
 def test_module():
     print("fuck your test")
 
