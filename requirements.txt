@@ -3,3 +3,6 @@ flask-sqlalchemy
 python-dotenv
 flask-migrate
 requests
+securepy
+wheel
+gunicorn
