@@ -25,7 +25,7 @@ def optimizer():
     return response
 
 @app.route('/api/optimizer/test', methods=["POST", "GET"])
-def optimizer():
+def optimizer_test():
     """
     This is a test version of the optimizer api, where the answer code is mocked up
     The request body must have the following information
