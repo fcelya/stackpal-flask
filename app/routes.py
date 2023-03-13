@@ -20,6 +20,6 @@ def optimizer():
             response = make_response(("The request did not contain 'language', 'user' and 'code' in the request body",400))
         
     elif request.method == "GET":
-        response = make_response(test_module())
+        response = make_response("Aquí puedes optimizar tu código")
     print(response)
     return response
