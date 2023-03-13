@@ -1,6 +1,6 @@
 from app import app
-from flask import request, jsonify, make_response
-from app.utils import test_module, openai_request_code
+from flask import request, make_response
+from app.utils import openai_request_code
 
 @app.route('/api/optimizer', methods=["POST", "GET"])
 def optimizer():

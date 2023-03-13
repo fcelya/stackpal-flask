@@ -12,3 +12,8 @@
 # class Optimization(db.Model):
 #     id = db.Column(db.Integer, primary_key=True)
 #     code_in = db.Column(db.String(2000),nullable=False)
+    # code_out
+    # tokens_prompt
+    # tokens_response
+    # tokens_total
+    # model
