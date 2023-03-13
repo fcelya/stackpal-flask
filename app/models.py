@@ -8,3 +8,7 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
+
+class Optimization(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    code_in = db.Column(db.String(2000),nullable=False)
