@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 import requests
 import securepy
-import time
+from time import time
+from re import findall
 
 def load_env():
     try:
@@ -22,7 +23,7 @@ def load_env():
                 print("ERROR: Load env 3 failed")
                 pass
 
-def openai_request_code(code,language="Python"):
+def openai_request_code(code,language="Python",temperature = 0.75):
     KEY = os.getenv("OPEN_AI_API_KEY")
     MODEL = "gpt-3.5-turbo"
     URL = "https://api.openai.com/v1/chat/completions"
@@ -33,12 +34,13 @@ def openai_request_code(code,language="Python"):
     }
 
     messages = [
-        {"role":"system", "content": f"You are a code optimization assistant. I am going to provide you with {language} code. You will provide a faster and more efficient version of that code that will retain the same functionality. Your answer should start with the optimized code, and be followed by an explanation of the changes."},
+        {"role":"system", "content": f"You are a code optimization assistant. I am going to provide you with {language} code. You will provide a faster and more efficient version of that code that will retain the same functionality. Your answer should start directly with the optimized code, and be followed by an explanation of the changes."},
         {"role":"user", "content":code}
     ]
 
     data = {"model":MODEL,
-            "messages":messages}
+            "messages":messages,
+            "temperature":temperature}
 
     r = requests.post(url=URL,headers=headers,json=data)
     data = r.json()
@@ -71,40 +73,24 @@ def test_module():
 
 def time_code(code,security=2,max_time = 30):
     restrictor = securepy.Restrictor(max_exec_time=max_time, restriction_scope=security)
-    start_time = time.time()
+    start_time = time()
     stdout, exc = restrictor.execute(code)
     print(exc)
-    end_time = time.time()
+    end_time = time()
     return end_time - start_time
 
 def parse_answers(answer):
-    paragraphs = answer.split(f"\n\n")
+    paragraphs = answer.split(f'\n\n')
     if len(paragraphs) == 2:
-        code = paragraphs[0]
-        explanation = paragraphs[1]
-    else:
-        scores = []
-        diff_scores = []
-        f = 0
-        for paragraph in paragraphs:
-            scores.append(paragraph_tokenizer(paragraph))
-            if f == 0:
-                f += 1
-                continue
-            else:
-                diff_scores.append(scores[f-1]-scores[f])
-                f += 1
-        
-        last_code = diff_scores.index(max(diff_scores))
-
-        code = f"\n\n".join(paragraphs[:last_code+1])
-        explanation = f"\n\n".join(paragraphs[last_code+1:])
+        return paragraphs
+    scores = [paragraph_tokenizer(paragraph) for paragraph in paragraphs]
+    diff_scores = [scores[i-1]-scores[i] for i in range(1, len(scores))]
+    last_code = diff_scores.index(max(diff_scores)) + 1
+    code = f'\n\n'.join(paragraphs[:last_code])
+    explanation = f'\n\n'.join(paragraphs[last_code:])
     return code, explanation
 
 def paragraph_tokenizer(paragraph):
-    token_list = ['[',']','(',')','+','-','/','*','=',':','.',',','!','&','return']
-    count = 0
-    for t in token_list:
-        count += paragraph.count(t)
-    print(count/len(paragraph))
+    regex = r"[\[\]\(\)\+\-\/\*\=\:\.\,\!\&]|\breturn\b"
+    count = len(findall(regex, paragraph))
     return count/len(paragraph)
