@@ -45,7 +45,7 @@ def openai_request_code(code,language="Python"):
 
     response = {}
     response["id_answer"] = data["id"]
-    response["answer_code"],response["answer_explanation"] = find_answers(code,data["choices"][0]["message"]["content"])
+    response["answer_code"],response["answer_explanation"] = parse_answers(data["choices"][0]["message"]["content"])
     response["model"] = data["model"]
     response["tokens_prompt"] = data["usage"]["prompt_tokens"]
     response["tokens_response"] = data["usage"]["completion_tokens"]
@@ -77,8 +77,34 @@ def time_code(code,security=2,max_time = 30):
     end_time = time.time()
     return end_time - start_time
 
-def find_answers(code, answer):
-    idx_fin = answer.rfind(f"\n\n")
-    answer_code = answer[:idx_fin]
-    answer_explanation = answer[idx_fin+2:]
-    return answer_code, answer_explanation
+def parse_answers(answer):
+    paragraphs = answer.split(f"\n\n")
+    if len(paragraphs) == 2:
+        code = paragraphs[0]
+        explanation = paragraphs[1]
+    else:
+        scores = []
+        diff_scores = []
+        f = 0
+        for paragraph in paragraphs:
+            scores.append(paragraph_tokenizer(paragraph))
+            if f == 0:
+                f += 1
+                continue
+            else:
+                diff_scores.append(scores[f-1]-scores[f])
+                f += 1
+        
+        last_code = diff_scores.index(max(diff_scores))
+
+        code = f"\n\n".join(paragraphs[:last_code+1])
+        explanation = f"\n\n".join(paragraphs[last_code+1:])
+    return code, explanation
+
+def paragraph_tokenizer(paragraph):
+    token_list = ['[',']','(',')','+','-','/','*','=',':','.',',','!','&','return']
+    count = 0
+    for t in token_list:
+        count += paragraph.count(t)
+    print(count/len(paragraph))
+    return count/len(paragraph)
