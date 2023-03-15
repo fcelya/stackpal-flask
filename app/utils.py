@@ -34,7 +34,7 @@ def openai_request_code(code,language="Python",temperature = 0.75):
     }
 
     messages = [
-        {"role":"system", "content": f"You are a code optimization assistant. I am going to provide you with {language} code. You will provide a faster and more efficient version of that code that will retain the same functionality. Your answer should start directly with the optimized code, and be followed by an explanation of the changes."},
+        {"role":"system", "content": f"You are a code optimization assistant. I am going to provide you with {language} code. You will provide a faster and more efficient version of that code that will retain the same functionality. Your answer should start directly with the optimized code, and be followed by a numbered list of the changes explained."},
         {"role":"user", "content":code}
     ]
 
