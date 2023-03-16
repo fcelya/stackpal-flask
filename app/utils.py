@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+from datetime import datetime
+import sys, traceback, logger
 import requests
 import securepy
 from time import time
@@ -94,3 +96,30 @@ def paragraph_tokenizer(paragraph):
     regex = r"[\[\]\(\)\+\-\/\*\=\:\.\,\!\&]|\breturn\b"
     count = len(findall(regex, paragraph))
     return count/len(paragraph)
+
+def log_error(request,e):
+    p = Path("app","logs")
+    with open(p.joinpath(f"log_{(int)(datetime.timestamp(datetime.now()))}.txt"),"w+") as f:
+        f.write(request.path)
+        f.write(f"\n\n-------REQUEST-------\n")
+        try:
+            data = request.json
+        except:
+            data = request.data
+        f.write((str)(data))
+        f.write(f"\n\n-------ERROR-------\n")
+        ex_type, ex_value, ex_traceback = sys.exc_info()
+        # Extract unformatter stack traces as tuples
+        trace_back = traceback.extract_tb(ex_traceback)
+        # Format stacktrace
+        stack_trace = list()
+
+        for trace in trace_back:
+            stack_trace.append("File : %s , Line : %d, Func.Name : %s, Message : %s" % (trace[0], trace[1], trace[2], trace[3]))
+        f.write((str)(e))
+        f.write(f"\nException type : {ex_type.__name__}")
+        f.write(f"\nException message : {ex_value}")
+        f.write(f"\nStack trace : {stack_trace}")
+        
+        # f.write((str)(e))
+    return
