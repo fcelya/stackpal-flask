@@ -3,3 +3,4 @@ venv
 __pycache__
 testing.py
 testing.ipynb
+log_*.txt

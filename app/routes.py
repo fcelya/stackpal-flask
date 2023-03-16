@@ -1,6 +1,6 @@
 from app import app
-from flask import request, make_response
-from app.utils import openai_request_code, openai_request_code_test
+from flask import request, make_response, abort
+from app.utils import openai_request_code, openai_request_code_test, log_error
 
 @app.route('/api/optimizer', methods=["POST", "GET"])
 def optimizer():
@@ -14,8 +14,12 @@ def optimizer():
         request_data = request.json
         k = request_data.keys()
         if "language" in k and "user" in k and "code" in k:
-            optimized_response = openai_request_code(code = request_data["code"], language = request_data["language"])
-            response = make_response(optimized_response)
+            try:
+                optimized_response = openai_request_code(code = request_data["code"], language = request_data["language"])
+                response = make_response(optimized_response)
+            except Exception as e:
+                log_error(request,e)
+                abort(500)
         else:
             response = make_response(("The request did not contain 'language', 'user' and 'code' in the request body",400))
         
@@ -46,3 +50,15 @@ def optimizer_test():
         response = make_response("Aquí puedes optimizar tu código")
     print(response)
     return response
+
+@app.route("/500error")
+def error_test():
+    try:
+        a = 1/0
+    except Exception as e:
+        log_error(request,e)
+        abort(500)
+
+@app.errorhandler(500)
+def internal_error(error):
+    return make_response("Internal Server error. Unable to process request",500)
